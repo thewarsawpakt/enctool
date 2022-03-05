@@ -49,7 +49,7 @@ def decrypt_file(key: bytes, filename: str) -> None:
 
 def main(args: list) -> int:
 
-    if len(args) < 3:  # first and second argument are the python binary and filename, respectively
+    if len(args) < 3:  # first argument is the filename
         print("Action to perform and file name must be provided.")
         return -1
 
