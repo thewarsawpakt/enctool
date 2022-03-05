@@ -4,7 +4,6 @@ import hashlib
 import typing
 import pickle
 import sys
-import os
 
 
 def generate_key() -> bytes:
