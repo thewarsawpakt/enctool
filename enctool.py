@@ -1,9 +1,12 @@
 from Crypto.Cipher import AES
+import tarfile
 import getpass
 import hashlib
 import typing
 import pickle
+import pathlib
 import sys
+import os
 
 
 def generate_key() -> bytes:
@@ -20,8 +23,14 @@ def encrypt(key: bytes, data: bytes) -> typing.Tuple[bytes, bytes, bytes]:
 
 
 def encrypt_file(key: bytes, filename: str) -> None:
-    with open(filename, "r") as file:
-        data = file.read().encode()
+    if pathlib.Path(filename).is_dir():
+        with tarfile.open(filename + ".tar", "w") as tar:
+            tar.add(filename, arcname=os.path.basename(filename))
+        os.rmdir(filename)
+        filename = filename + ".tar"
+
+    with open(filename, "rb") as file:
+        data = file.read()
 
     with open(filename, "wb") as file:
         tag, nonce, ciphertext = encrypt(key, data)
@@ -45,10 +54,15 @@ def decrypt_file(key: bytes, filename: str) -> None:
     with open(filename, "wb") as file:
         file.write(decrypted)
 
+    if filename[-4:] == ".tar":
+        with tarfile.open(filename) as file:
+            file_.extractall()
+        os.remove(filename)
+
 
 def main(args: list) -> int:
 
-    if len(args) < 3:  # first argument is the filename
+    if len(args) < 3:
         print("Action to perform and file name must be provided.")
         return -1
 
